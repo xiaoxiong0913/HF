@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HF-ICU Risk Translation Studio</title>
+  <style>
+    :root{
+      --bg:#f4f6f8;
+      --surface:#ffffff;
+      --surface-soft:#fafbfd;
+      --ink:#14283c;
+      --muted:#5f7082;
+      --line:#d9e1e8;
+      --line-strong:#c4cfda;
+      --accent:#1d5977;
+      --accent-soft:#edf4f8;
+      --shadow:0 8px 24px rgba(20,40,60,.05);
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;
+      color:var(--ink);
+      background:var(--bg);
+    }
+    .shell{max-width:1440px;margin:0 auto;padding:24px}
+    .hero,.workspace,.score-grid,.lower-grid{display:grid;gap:18px}
+    .hero{grid-template-columns:minmax(0,1.15fr) minmax(0,0.85fr);align-items:stretch}
+    .workspace{grid-template-columns:minmax(0,1fr) minmax(0,1fr);align-items:start}
+    .score-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+    .lower-grid{grid-template-columns:minmax(0,0.92fr) minmax(0,1.08fr);margin-top:18px}
+    .card,.panel{
+      background:var(--surface);
+      border:1px solid var(--line);
+      border-radius:18px;
+      box-shadow:var(--shadow);
+      padding:22px;
+    }
+    .hero-copy{
+      min-height:150px;
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+    }
+    .eyebrow{
+      text-transform:uppercase;
+      letter-spacing:.12em;
+      font-size:11px;
+      color:#7d8b98;
+      margin-bottom:10px
+    }
+    h1{font-size:34px;line-height:1.05;margin:0 0 10px}
+    h2{font-size:19px;margin:0 0 8px}
+    h3{font-size:15px;margin:0 0 10px}
+    p,li{line-height:1.55}
+    .lede,.panel p,.subtle{color:var(--muted)}
+    .metric-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;height:100%}
+    .metric{
+      background:var(--surface-soft);
+      border:1px solid var(--line);
+      border-radius:14px;
+      padding:14px 16px;
+      min-height:78px;
+      display:grid;
+      align-content:start;
+      gap:8px;
+    }
+    .metric .label{font-size:12px;color:var(--muted)}
+    .metric .value{font-size:22px;font-weight:700;color:var(--accent)}
+    .panel-header{
+      display:flex;
+      justify-content:space-between;
+      gap:12px;
+      align-items:flex-start;
+      margin-bottom:14px;
+    }
+    details{
+      border:1px solid var(--line);
+      border-radius:14px;
+      background:var(--surface);
+      margin-bottom:12px;
+      overflow:hidden;
+    }
+    summary{
+      cursor:pointer;
+      padding:14px 16px;
+      font-weight:700;
+      background:var(--surface-soft);
+      color:var(--ink);
+    }
+    .fields{
+      display:grid;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:12px;
+      padding:14px 16px 16px;
+    }
+    .field{display:flex;flex-direction:column;gap:6px}
+    .field label{font-size:12px;color:var(--muted)}
+    .field input,.field select{
+      width:100%;
+      border:1px solid var(--line-strong);
+      border-radius:12px;
+      padding:10px 12px;
+      font-size:14px;
+      background:#fff;
+      min-height:42px;
+    }
+    .actions{display:flex;gap:10px;margin-top:18px}
+    .actions button{
+      border:1px solid var(--line-strong);
+      border-radius:999px;
+      padding:11px 18px;
+      font-size:14px;
+      cursor:pointer;
+      transition:.15s ease;
+    }
+    .actions button:hover{transform:translateY(-1px)}
+    .primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+    .secondary{background:#fff;color:var(--ink)}
+    .score-card{
+      min-height:212px;
+      display:flex;
+      flex-direction:column;
+      justify-content:flex-start;
+      gap:12px;
+      border-radius:16px;
+      background:#ffffff;
+      box-shadow:none;
+      border:1px solid var(--line);
+      padding:18px;
+    }
+    .risk{
+      font-size:40px;
+      font-weight:800;
+      letter-spacing:-.02em;
+      margin-top:2px;
+    }
+    .pill{
+      display:inline-flex;
+      align-self:flex-start;
+      padding:6px 10px;
+      border-radius:999px;
+      background:var(--accent-soft);
+      color:var(--accent);
+      font-size:12px;
+      margin-bottom:2px;
+    }
+    .bar{
+      height:8px;
+      background:#edf1f5;
+      border-radius:999px;
+      overflow:hidden;
+    }
+    .bar span{
+      display:block;
+      height:100%;
+      background:var(--accent);
+    }
+    .score-card ul{
+      list-style:none;
+      padding-left:0;
+      margin:0;
+      color:var(--muted);
+      font-size:12.5px;
+      overflow-wrap:anywhere;
+      line-height:1.5;
+    }
+    .score-card li{margin-bottom:6px}
+    .section-block{
+      background:var(--surface-soft);
+      border:1px solid var(--line);
+      border-radius:16px;
+      padding:18px;
+    }
+    .driver-chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+    .chip{
+      display:inline-flex;
+      align-items:center;
+      padding:7px 10px;
+      border-radius:999px;
+      background:#f3f7fa;
+      border:1px solid #d5e0e8;
+      color:var(--ink);
+      font-size:12px;
+    }
+    .comparison-table{
+      display:grid;
+      grid-template-columns:160px repeat(3,minmax(0,1fr));
+      margin-top:12px;
+      border:1px solid var(--line);
+      border-radius:14px;
+      overflow:hidden;
+      background:#fff;
+    }
+    .comparison-cell{
+      min-height:58px;
+      padding:14px 14px;
+      border-right:1px solid var(--line);
+      border-bottom:1px solid var(--line);
+      background:#fff;
+    }
+    .comparison-cell:nth-child(4n){border-right:none}
+    .comparison-cell:nth-last-child(-n+4){border-bottom:none}
+    .comparison-cell.header{
+      background:var(--surface-soft);
+      text-align:center;
+      font-size:13px;
+      color:var(--muted);
+      font-weight:700;
+    }
+    .comparison-cell.stub{
+      background:var(--surface-soft);
+      font-size:12px;
+      letter-spacing:.05em;
+      text-transform:uppercase;
+      color:var(--muted);
+      font-weight:700;
+    }
+    .comparison-cell.value{
+      font-size:13px;
+      font-weight:700;
+      color:var(--ink);
+    }
+    .comparison-cell.value strong{
+      display:block;
+      margin-bottom:3px;
+      color:var(--accent);
+      font-size:15px;
+    }
+    .comparison-cell.value span{
+      color:var(--muted);
+      font-size:13px;
+      line-height:1.5;
+    }
+    .footer{
+      margin-top:14px;
+      padding:14px 16px;
+      border-radius:14px;
+      background:var(--surface-soft);
+      border:1px solid var(--line);
+      color:var(--muted);
+      font-size:13px;
+      line-height:1.7;
+    }
+    .status{
+      display:none;
+      margin-bottom:18px;
+      padding:18px 20px;
+      border-radius:20px;
+      border:1px solid #e3c9a6;
+      background:#fff7ea;
+      box-shadow:0 12px 28px rgba(19,41,61,.06);
+    }
+    .status.visible{display:block}
+    .status.error{border-color:#e0b17f;background:#fff4e8}
+    .status h3{margin:0 0 8px;font-size:18px}
+    .status p{margin:0 0 10px;color:#5b4a37;line-height:1.6}
+    .status pre{
+      margin:0;
+      padding:12px 14px;
+      background:#fff;
+      border-radius:12px;
+      border:1px solid #ecdcc3;
+      overflow:auto;
+      white-space:pre-wrap;
+      font-family:Consolas,"Courier New",monospace;
+      font-size:12px;
+      line-height:1.5;
+    }
+    @media (max-width:1180px){
+      .hero,.workspace,.score-grid,.fields,.metric-grid,.comparison-table,.lower-grid{grid-template-columns:1fr}
+      .score-card{min-height:auto}
+      .comparison-cell{border-right:none}
+      .comparison-cell:nth-child(4n){border-right:none}
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <div id="status-banner" class="status">
+      <h3 id="status-title">Local server required</h3>
+      <p id="status-message"></p>
+      <pre id="status-command"></pre>
+    </div>
+    <section class="hero">
+      <div class="card hero-copy">
+        <div class="eyebrow">Clinical Translation Demo</div>
+        <h1 id="hero-title"></h1>
+        <p class="lede" id="hero-lede"></p>
+      </div>
+      <div class="card">
+        <div class="metric-grid" id="hero-metrics"></div>
+      </div>
+    </section>
+    <section class="workspace">
+      <div class="panel">
+        <div class="panel-header">
+          <div>
+            <h2>Patient input</h2>
+            <p id="input-note" class="subtle"></p>
+          </div>
+        </div>
+        <div id="input-sections"></div>
+        <div class="actions">
+          <button class="primary" onclick="calculateAll()">Calculate risk</button>
+          <button class="secondary" onclick="resetDefaults()">Reset defaults</button>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="panel-header">
+          <div>
+            <h2>Risk output</h2>
+            <p id="result-note" class="subtle"></p>
+          </div>
+        </div>
+        <div class="score-grid">
+          <div class="card score-card">
+            <h3 id="main-card-title">Champion model</h3>
+            <div class="risk" id="ml-risk">--</div>
+            <div class="pill" id="ml-band">Pending</div>
+            <div class="bar"><span id="ml-bar" style="width:0%"></span></div>
+            <ul id="ml-detail"></ul>
+          </div>
+          <div class="card score-card">
+            <h3>GWTG-HF</h3>
+            <div class="risk" id="gwtg-risk">--</div>
+            <div class="pill" id="gwtg-band">Pending</div>
+            <div class="bar"><span id="gwtg-bar" style="width:0%"></span></div>
+            <ul id="gwtg-detail"></ul>
+          </div>
+          <div class="card score-card">
+            <h3>ADHERE</h3>
+            <div class="risk" id="adhere-risk">--</div>
+            <div class="pill" id="adhere-band">Pending</div>
+            <div class="bar"><span id="adhere-bar" style="width:0%"></span></div>
+            <ul id="adhere-detail"></ul>
+          </div>
+        </div>
+      </div>
+    </section>
+    <section class="lower-grid">
+      <div class="section-block">
+        <h3>Top model drivers</h3>
+        <p class="subtle">The deployed CatBoost model is kept aligned with the manuscript and uses the same 10 harmonized first-day ICU variables.</p>
+        <div class="driver-chips" id="driver-chips"></div>
+      </div>
+      <div class="section-block">
+        <h3>Comparison with bedside clinical scores</h3>
+        <div class="comparison-table" id="comparison-table"></div>
+      </div>
+    </section>
+    <div class="footer" id="footer-note"></div>
+  </div>
+  <script>
+    let CONFIG = null;
+
+    function band(p){
+      if(p < 0.10) return 'Low risk';
+      if(p < 0.20) return 'Intermediate risk';
+      return 'High risk';
+    }
+
+    function metricCard(label, value){
+      return `<div class="metric"><div class="label">${label}</div><div class="value">${value}</div></div>`;
+    }
+
+    function startupCommand(){
+      return [
+        'Do not open this file directly.',
+        'Start the local server first:',
+        '1. Double-click launch_clinical_web_demo.cmd',
+        '2. Keep the terminal window open',
+        '3. Open http://127.0.0.1:8765 in your browser'
+      ].join('\n');
+    }
+
+    function showStatus(title, message, commandText){
+      const banner = document.getElementById('status-banner');
+      document.getElementById('status-title').textContent = title;
+      document.getElementById('status-message').textContent = message;
+      document.getElementById('status-command').textContent = commandText || startupCommand();
+      banner.classList.add('visible');
+      banner.classList.add('error');
+    }
+
+    function clearStatus(){
+      document.getElementById('status-banner').classList.remove('visible');
+    }
+
+    function renderInputs(){
+      const box = document.getElementById('input-sections');
+      box.innerHTML = '';
+      const grouped = {};
+      CONFIG.prediction_model.input_features.forEach((f) => {
+        if(!grouped[f.category]) grouped[f.category] = [];
+        grouped[f.category].push(f);
+      });
+      CONFIG.metadata.category_order.forEach((cat) => {
+        const fields = grouped[cat];
+        if(!fields || !fields.length) return;
+        const details = document.createElement('details');
+        details.open = (cat === 'Demographics' || cat === 'Vital signs' || cat === 'Laboratory / Other');
+        const summary = document.createElement('summary');
+        summary.textContent = cat;
+        details.appendChild(summary);
+        const grid = document.createElement('div');
+        grid.className = 'fields';
+        fields.forEach((f) => {
+          const wrapper = document.createElement('div');
+          wrapper.className = 'field';
+          const label = document.createElement('label');
+          label.textContent = f.label + (f.unit ? ` (${f.unit})` : '');
+          wrapper.appendChild(label);
+          let control;
+          if(f.type === 'select'){
+            control = document.createElement('select');
+            (f.options || []).forEach((opt) => {
+              const option = document.createElement('option');
+              option.value = String(opt.value);
+              option.textContent = opt.label;
+              if(String(f.default) === String(opt.value)) option.selected = true;
+              control.appendChild(option);
+            });
+          }else{
+            control = document.createElement('input');
+            control.type = 'number';
+            control.step = f.step || 0.1;
+            control.value = Number(f.default).toFixed(f.step === 0.01 ? 2 : 1);
+          }
+          control.id = f.key;
+          wrapper.appendChild(control);
+          grid.appendChild(wrapper);
+        });
+        details.appendChild(grid);
+        box.appendChild(details);
+      });
+    }
+
+    function collectInputs(){
+      const out = {};
+      CONFIG.prediction_model.input_features.forEach((f) => {
+        const node = document.getElementById(f.key);
+        if(!node) return;
+        out[f.key] = f.type === 'select' ? node.value : (node.value.trim() === '' ? null : Number(node.value));
+      });
+      return out;
+    }
+
+    function setCard(prefix, payload, title){
+      document.getElementById(prefix + '-risk').textContent = (payload.risk * 100).toFixed(1) + '%';
+      document.getElementById(prefix + '-band').textContent = band(payload.risk);
+      document.getElementById(prefix + '-bar').style.width = Math.max(2, Math.min(100, payload.risk * 100)) + '%';
+      if(title && prefix === 'ml') document.getElementById('main-card-title').textContent = title;
+      const list = document.getElementById(prefix + '-detail');
+      list.innerHTML = '';
+      const summaries = {
+        ml: [
+          `${CONFIG.metadata.prediction_model_feature_count} harmonized ICU variables`,
+          `External AUROC ${CONFIG.prediction_model.performance.external_auroc.toFixed(3)}`,
+        ],
+        gwtg: [
+          '7 fixed bedside variables',
+          `External AUROC ${CONFIG.gwtg_hf.performance.external_auroc.toFixed(3)}`,
+        ],
+        adhere: [
+          '3 threshold variables',
+          `External AUROC ${CONFIG.adhere.performance.external_auroc.toFixed(3)}`,
+        ],
+      };
+      (summaries[prefix] || payload.details.slice(0, 2)).forEach((text) => {
+        const li = document.createElement('li');
+        li.textContent = text;
+        list.appendChild(li);
+      });
+    }
+
+    function renderDrivers(){
+      const box = document.getElementById('driver-chips');
+      box.innerHTML = '';
+      CONFIG.prediction_model.top_drivers.slice(0, 6).forEach((item) => {
+        const span = document.createElement('span');
+        span.className = 'chip';
+        span.textContent = item.label;
+        box.appendChild(span);
+      });
+    }
+
+    function renderComparison(){
+      const rows = [
+        ['Model', CONFIG.prediction_model.name, 'GWTG-HF', 'ADHERE'],
+        ['Variables', `${CONFIG.metadata.prediction_model_feature_count} harmonized ICU variables`, '7 fixed variables', '3 threshold variables'],
+        ['Model form', 'CatBoost deployment model', 'Point-based bedside score', 'Threshold-based bedside tree'],
+        ['External AUROC', CONFIG.prediction_model.performance.external_auroc.toFixed(3), CONFIG.gwtg_hf.performance.external_auroc.toFixed(3), CONFIG.adhere.performance.external_auroc.toFixed(3)],
+        ['Clinical role', 'Primary ICU risk model', 'Clinical benchmark', 'Clinical benchmark']
+      ];
+      const html = [];
+      rows.forEach((row, rowIndex) => {
+        row.forEach((cell, cellIndex) => {
+          if(rowIndex === 0){
+            html.push(`<div class="comparison-cell header">${cell}</div>`);
+          }else if(cellIndex === 0){
+            html.push(`<div class="comparison-cell stub">${cell}</div>`);
+          }else if(row[0] === 'External AUROC'){
+            html.push(`<div class="comparison-cell value"><strong>${cell}</strong><span>External validation</span></div>`);
+          }else{
+            html.push(`<div class="comparison-cell value"><strong>${cell}</strong></div>`);
+          }
+        });
+      });
+      document.getElementById('comparison-table').innerHTML = html.join('');
+    }
+
+    async function fetchJson(url, options){
+      const response = await fetch(url, options);
+      if(!response.ok){
+        throw new Error(`Request failed: ${response.status} ${response.statusText}`);
+      }
+      return await response.json();
+    }
+
+    async function calculateAll(){
+      try{
+        const payload = await fetchJson('/api/predict', {
+          method:'POST',
+          headers:{'Content-Type':'application/json'},
+          body:JSON.stringify({inputs:collectInputs()})
+        });
+        setCard('ml', payload.prediction_model, payload.prediction_model.title);
+        setCard('gwtg', payload.gwtg_hf);
+        setCard('adhere', payload.adhere);
+        clearStatus();
+      }catch(error){
+        console.error(error);
+        showStatus(
+          'Prediction service is unavailable',
+          'The backend prediction endpoint did not return a valid response. Keep the local server running and refresh the page after the service is healthy.',
+          startupCommand()
+        );
+      }
+    }
+
+    function resetDefaults(){
+      CONFIG.prediction_model.input_features.forEach((f) => {
+        const node = document.getElementById(f.key);
+        if(!node) return;
+        if(f.type === 'select') node.value = String(f.default);
+        else node.value = Number(f.default).toFixed(f.step === 0.01 ? 2 : 1);
+      });
+      calculateAll();
+    }
+
+    async function bootstrap(){
+      if(window.location.protocol === 'file:'){
+        showStatus(
+          'Open through the local server',
+          'This page depends on a local prediction API. Opening the HTML file directly will always fail.',
+          startupCommand()
+        );
+      }
+      try{
+        CONFIG = await fetchJson('/api/config');
+        document.getElementById('hero-title').textContent = CONFIG.metadata.title;
+        document.getElementById('hero-lede').textContent = CONFIG.metadata.lede;
+        document.getElementById('input-note').textContent = CONFIG.metadata.input_note;
+        document.getElementById('result-note').textContent = CONFIG.metadata.result_note;
+        document.getElementById('footer-note').textContent = CONFIG.metadata.footer_note;
+        document.getElementById('hero-metrics').innerHTML = [
+          metricCard(`${CONFIG.prediction_model.name} external AUROC`, CONFIG.prediction_model.performance.external_auroc.toFixed(3)),
+          metricCard('GWTG-HF external AUROC', CONFIG.gwtg_hf.performance.external_auroc.toFixed(3)),
+          metricCard('Primary endpoint', CONFIG.metadata.primary_outcome),
+          metricCard('Data setting', `${CONFIG.metadata.development_dataset} → ${CONFIG.metadata.external_validation_dataset}`)
+        ].join('');
+        renderInputs();
+        renderDrivers();
+        renderComparison();
+        await calculateAll();
+      }catch(error){
+        console.error(error);
+        showStatus(
+          'Local server not running',
+          'The front-end could not reach /api/config. Please start the local server first instead of opening the HTML directly.',
+          startupCommand()
+        );
+      }
+    }
+
+    bootstrap();
+  </script>
+</body>
+</html>

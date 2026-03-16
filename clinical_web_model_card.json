@@ -1,0 +1,305 @@
+{
+  "metadata": {
+    "title": "HF-ICU Risk Translation Studio",
+    "lede": "This local application uses the manuscript-aligned CatBoost deployment model and contrasts it with database-adapted GWTG-HF and ADHERE benchmarks.",
+    "primary_outcome": "In-hospital mortality",
+    "development_dataset": "eICU-CRD",
+    "external_validation_dataset": "MIMIC-IV",
+    "prediction_model_feature_count": 10,
+    "selected_transformed_feature_count": 12,
+    "prediction_model_source": "final parsimonious deployment model",
+    "category_order": [
+      "Demographics",
+      "Comorbidities",
+      "Vital signs",
+      "Laboratory / Other",
+      "Interventions",
+      "Benchmark-only"
+    ],
+    "input_note": "Enter the harmonized first-day ICU variables used by the deployed CatBoost model. Empty numeric fields are replaced with development-cohort defaults for local demonstration.",
+    "result_note": "The first card is the manuscript-aligned deployed model. The other two cards are bedside clinical comparators.",
+    "footer_note": "Database-adapted benchmark notice: GWTG-HF and ADHERE use harmonized first-day proxy variables rather than exact bedside admission values."
+  },
+  "prediction_model": {
+    "name": "CatBoost",
+    "model_key": "CatBoost",
+    "raw_feature_order": [
+      "age",
+      "gender",
+      "sbp_mean_24h",
+      "map_mean_24h",
+      "heart_rate_mean_24h",
+      "spo2_min_24h",
+      "bun_max_24h",
+      "creatinine_max_24h",
+      "bicarbonate_min_24h",
+      "ph_min_24h"
+    ],
+    "selected_transformed_features": [
+      "num__age",
+      "num__sbp_mean_24h",
+      "num__map_mean_24h",
+      "num__heart_rate_mean_24h",
+      "num__spo2_min_24h",
+      "num__bun_max_24h",
+      "num__creatinine_max_24h",
+      "num__bicarbonate_min_24h",
+      "num__ph_min_24h",
+      "cat__gender_Female",
+      "cat__gender_Male",
+      "cat__gender_Unknown"
+    ],
+    "input_features": [
+      {
+        "key": "age",
+        "label": "Age",
+        "short_label": "Age",
+        "unit": "years",
+        "category": "Demographics",
+        "default": 71.0,
+        "type": "number",
+        "step": 0.1
+      },
+      {
+        "key": "gender",
+        "label": "Sex",
+        "short_label": "Sex",
+        "unit": "",
+        "category": "Demographics",
+        "default": "Male",
+        "type": "select",
+        "step": 0.1,
+        "options": [
+          {
+            "value": "Male",
+            "label": "Male"
+          },
+          {
+            "value": "Female",
+            "label": "Female"
+          },
+          {
+            "value": "Unknown",
+            "label": "Unknown"
+          }
+        ]
+      },
+      {
+        "key": "heart_rate_mean_24h",
+        "label": "Mean heart rate in first 24 h",
+        "short_label": "Mean Heart rate (24 h)",
+        "unit": "beats/min",
+        "category": "Vital signs",
+        "default": 83.43522846441948,
+        "type": "number",
+        "step": 0.1
+      },
+      {
+        "key": "map_mean_24h",
+        "label": "Mean mean arterial pressure in first 24 h",
+        "short_label": "Mean MAP (24 h)",
+        "unit": "mmHg",
+        "category": "Vital signs",
+        "default": 79.14971264367816,
+        "type": "number",
+        "step": 0.1
+      },
+      {
+        "key": "sbp_mean_24h",
+        "label": "Mean systolic blood pressure in first 24 h",
+        "short_label": "Mean SBP (24 h)",
+        "unit": "mmHg",
+        "category": "Vital signs",
+        "default": 117.64285714285714,
+        "type": "number",
+        "step": 0.1
+      },
+      {
+        "key": "spo2_min_24h",
+        "label": "Minimum peripheral oxygen saturation in first 24 h",
+        "short_label": "Min SpO2 (24 h)",
+        "unit": "%",
+        "category": "Vital signs",
+        "default": 87.0,
+        "type": "number",
+        "step": 0.1
+      },
+      {
+        "key": "bun_max_24h",
+        "label": "Maximum blood urea nitrogen in first 24 h",
+        "short_label": "Max BUN (24 h)",
+        "unit": "mg/dL",
+        "category": "Laboratory / Other",
+        "default": 30.0,
+        "type": "number",
+        "step": 0.1
+      },
+      {
+        "key": "creatinine_max_24h",
+        "label": "Maximum serum creatinine in first 24 h",
+        "short_label": "Max Creatinine (24 h)",
+        "unit": "mg/dL",
+        "category": "Laboratory / Other",
+        "default": 1.41,
+        "type": "number",
+        "step": 0.1
+      },
+      {
+        "key": "ph_min_24h",
+        "label": "Minimum arterial ph in first 24 h",
+        "short_label": "Min pH (24 h)",
+        "unit": "",
+        "category": "Laboratory / Other",
+        "default": 7.35,
+        "type": "number",
+        "step": 0.01
+      },
+      {
+        "key": "bicarbonate_min_24h",
+        "label": "Minimum bicarbonate in first 24 h",
+        "short_label": "Min Bicarbonate (24 h)",
+        "unit": "mmol/L",
+        "category": "Laboratory / Other",
+        "default": 25.0,
+        "type": "number",
+        "step": 0.1
+      },
+      {
+        "key": "race_ethnicity",
+        "label": "Race / ethnicity",
+        "short_label": "Race/ethnicity",
+        "unit": "",
+        "category": "Benchmark-only",
+        "default": "Other/Unknown",
+        "type": "select",
+        "options": [
+          {
+            "value": "Other/Unknown",
+            "label": "Other/Unknown"
+          },
+          {
+            "value": "White",
+            "label": "White"
+          },
+          {
+            "value": "Black",
+            "label": "Black"
+          },
+          {
+            "value": "Asian",
+            "label": "Asian"
+          },
+          {
+            "value": "Hispanic/Latino",
+            "label": "Hispanic/Latino"
+          }
+        ]
+      }
+    ],
+    "deployment_note": "The web application uses the final parsimonious CatBoost deployment model selected for clinical translation.",
+    "performance": {
+      "internal_auroc": 0.7698235263675411,
+      "internal_auprc": 0.390347033938127,
+      "internal_brier": 0.0966429633639924,
+      "external_auroc": 0.7580492873805471,
+      "external_auprc": 0.4225839378522354,
+      "external_brier": 0.10768457982374778
+    },
+    "top_drivers": [
+      {
+        "raw_feature": "heart_rate_mean_24h",
+        "label": "Mean heart rate in first 24 h",
+        "mean_abs_shap": 13.021046377394827
+      },
+      {
+        "raw_feature": "age",
+        "label": "Age",
+        "mean_abs_shap": 11.934952171328112
+      },
+      {
+        "raw_feature": "spo2_min_24h",
+        "label": "Minimum peripheral oxygen saturation in first 24 h",
+        "mean_abs_shap": 11.076767518348273
+      },
+      {
+        "raw_feature": "sbp_mean_24h",
+        "label": "Mean systolic blood pressure in first 24 h",
+        "mean_abs_shap": 11.028100951330694
+      },
+      {
+        "raw_feature": "map_mean_24h",
+        "label": "Mean mean arterial pressure in first 24 h",
+        "mean_abs_shap": 10.590959680750549
+      },
+      {
+        "raw_feature": "ph_min_24h",
+        "label": "Minimum arterial ph in first 24 h",
+        "mean_abs_shap": 10.46230825843519
+      },
+      {
+        "raw_feature": "bicarbonate_min_24h",
+        "label": "Minimum bicarbonate in first 24 h",
+        "mean_abs_shap": 10.200079103976885
+      },
+      {
+        "raw_feature": "bun_max_24h",
+        "label": "Maximum blood urea nitrogen in first 24 h",
+        "mean_abs_shap": 9.942288160234783
+      }
+    ]
+  },
+  "gwtg_hf": {
+    "calibrator": {
+      "intercept": -5.5593094202461115,
+      "coefficient": 0.07900528126467363
+    },
+    "performance": {
+      "internal_auroc": 0.7170941041763701,
+      "internal_auprc": 0.2840505720568705,
+      "internal_brier": 0.1040376719148322,
+      "external_auroc": 0.7064885816249482,
+      "external_auprc": 0.3001230853838993,
+      "external_brier": 0.1167564009331768
+    }
+  },
+  "adhere": {
+    "group_risk": {
+      "1": 0.06618801884675792,
+      "2": 0.1441746080541039,
+      "3": 0.11978097193702943,
+      "4": 0.24782067247820672,
+      "5": 0.2508250825082508
+    },
+    "group_label": {
+      "1": "BUN < 43 and SBP >= 115",
+      "2": "BUN < 43 and SBP < 115",
+      "3": "BUN >= 43 and SBP >= 115",
+      "4": "BUN >= 43 and SBP < 115 and creatinine < 2.75",
+      "5": "BUN >= 43 and SBP < 115 and creatinine >= 2.75"
+    },
+    "performance": {
+      "internal_auroc": 0.6388790237023237,
+      "internal_auprc": 0.2014460542983829,
+      "internal_brier": 0.1089167188736382,
+      "external_auroc": 0.633359665165844,
+      "external_auprc": 0.2220258701900189,
+      "external_brier": 0.1221239267988218
+    }
+  },
+  "defaults": {
+    "race_ethnicity": "Other/Unknown",
+    "copd_flag": 0.0,
+    "sodium_min_24h": 138.0
+  },
+  "difference_note": [
+    "The web application uses the final parsimonious CatBoost deployment model selected for clinical translation.",
+    "The deployed CatBoost model consumes 10 harmonized first-day ICU variables. Feature set: compact10_rich.",
+    "GWTG-HF uses 7 fixed variables with a fixed point-based rule originally designed for hospitalized heart failure patients.",
+    "ADHERE uses 3 fixed thresholds and is intended as a simple bedside tree rather than a rich ICU risk engine.",
+    "GWTG-HF and ADHERE are implemented here as database-adapted bedside comparators rather than exact bedside reproductions."
+  ],
+  "runtime": {
+    "model_file": "runtime\\CatBoost.joblib",
+    "preprocessor_file": "runtime\\preprocessor.joblib"
+  }
+}
