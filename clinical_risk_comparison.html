@@ -27,7 +27,7 @@
     .shell{max-width:1320px;margin:0 auto;padding:20px}
     .hero,.workspace,.score-grid,.lower-grid{display:grid;gap:18px}
     .hero{grid-template-columns:minmax(0,1fr) minmax(0,1fr);align-items:stretch}
-    .workspace{grid-template-columns:minmax(0,1fr) minmax(0,1fr);align-items:start}
+    .workspace{grid-template-columns:minmax(0,1.02fr) minmax(0,0.98fr);align-items:stretch}
     .score-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
     .lower-grid{grid-template-columns:repeat(2,minmax(0,1fr));margin-top:16px;align-items:stretch}
     .card,.panel{
@@ -36,6 +36,11 @@
       border-radius:16px;
       box-shadow:var(--shadow);
       padding:20px;
+    }
+    .panel{
+      display:flex;
+      flex-direction:column;
+      height:100%;
     }
     .hero-copy{
       min-height:138px;
@@ -74,6 +79,19 @@
       gap:12px;
       align-items:flex-start;
       margin-bottom:14px;
+    }
+    .section-tag{
+      display:inline-flex;
+      align-self:flex-start;
+      margin-bottom:6px;
+      padding:4px 8px;
+      border-radius:999px;
+      background:var(--accent-soft);
+      color:var(--accent);
+      font-size:11px;
+      font-weight:700;
+      letter-spacing:.04em;
+      text-transform:uppercase;
     }
     details{
       border:1px solid var(--line);
@@ -161,12 +179,25 @@
       list-style:none;
       padding-left:0;
       margin:0;
+      margin-top:auto;
+      padding-top:10px;
       color:var(--muted);
       font-size:12.5px;
       overflow-wrap:anywhere;
       line-height:1.5;
     }
     .score-card li{margin-bottom:6px}
+    .score-card li:last-child{margin-bottom:0}
+    .output-note{
+      margin-top:12px;
+      padding:12px 14px;
+      border-radius:14px;
+      background:var(--surface-soft);
+      border:1px solid var(--line);
+      color:var(--muted);
+      font-size:12.5px;
+      line-height:1.6;
+    }
     .section-block{
       background:var(--surface-soft);
       border:1px solid var(--line);
@@ -175,6 +206,9 @@
       height:100%;
       display:flex;
       flex-direction:column;
+    }
+    .section-block p{
+      margin:0;
     }
     .driver-grid{
       display:grid;
@@ -212,7 +246,7 @@
     }
     .comparison-table{
       display:grid;
-      grid-template-columns:160px repeat(3,minmax(0,1fr));
+      grid-template-columns:148px repeat(3,minmax(0,1fr));
       margin-top:12px;
       border:1px solid var(--line);
       border-radius:14px;
@@ -259,15 +293,13 @@
       font-size:11px;
       line-height:1.4;
     }
-    .footer{
-      margin-top:14px;
-      padding:14px 16px;
-      border-radius:14px;
-      background:var(--surface-soft);
-      border:1px solid var(--line);
+    .comparison-note{
+      margin-top:12px;
+      padding-top:12px;
+      border-top:1px solid var(--line);
       color:var(--muted);
-      font-size:13px;
-      line-height:1.7;
+      font-size:12px;
+      line-height:1.6;
     }
     .status{
       display:none;
@@ -295,7 +327,7 @@
       line-height:1.5;
     }
     @media (max-width:1180px){
-      .hero,.workspace,.score-grid,.fields,.metric-grid,.comparison-table,.lower-grid{grid-template-columns:1fr}
+      .hero,.workspace,.score-grid,.fields,.metric-grid,.comparison-table,.lower-grid,.driver-grid{grid-template-columns:1fr}
       .score-card{min-height:auto}
       .comparison-cell{border-right:none}
       .comparison-cell:nth-child(4n){border-right:none}
@@ -323,6 +355,7 @@
       <div class="panel">
         <div class="panel-header">
           <div>
+            <div class="section-tag">Interactive input</div>
             <h2>Patient input</h2>
             <p id="input-note" class="subtle"></p>
           </div>
@@ -336,6 +369,7 @@
       <div class="panel">
         <div class="panel-header">
           <div>
+            <div class="section-tag">Model results</div>
             <h2>Risk output</h2>
             <p id="result-note" class="subtle"></p>
           </div>
@@ -363,20 +397,23 @@
             <ul id="adhere-detail"></ul>
           </div>
         </div>
+        <div class="output-note">The deployed web calculator is aligned with the manuscript-facing 10-feature CatBoost model and is intended for side-by-side comparison with database-adapted bedside scores.</div>
       </div>
     </section>
     <section class="lower-grid">
       <div class="section-block">
+        <div class="section-tag">Feature insight</div>
         <h3>Top model drivers</h3>
-        <p class="subtle">The deployed CatBoost model is kept aligned with the manuscript and uses the same 10 harmonized first-day ICU variables.</p>
+        <p class="subtle">The six drivers below summarize the most influential first-day ICU predictors retained in the deployed model.</p>
         <div class="driver-grid" id="driver-chips"></div>
       </div>
       <div class="section-block">
+        <div class="section-tag">Benchmark contrast</div>
         <h3>Comparison with bedside clinical scores</h3>
         <div class="comparison-table" id="comparison-table"></div>
+        <div class="comparison-note" id="footer-note"></div>
       </div>
     </section>
-    <div class="footer" id="footer-note"></div>
   </div>
   <script>
     let CONFIG = null;
@@ -595,7 +632,7 @@
           metricCard(`${CONFIG.prediction_model.name} external AUROC`, CONFIG.prediction_model.performance.external_auroc.toFixed(3)),
           metricCard('GWTG-HF external AUROC', CONFIG.gwtg_hf.performance.external_auroc.toFixed(3)),
           metricCard('Primary endpoint', CONFIG.metadata.primary_outcome),
-          metricCard('Data setting', `${CONFIG.metadata.development_dataset} → ${CONFIG.metadata.external_validation_dataset}`)
+          metricCard('Data setting', `${CONFIG.metadata.development_dataset} -> ${CONFIG.metadata.external_validation_dataset}`)
         ].join('');
         renderInputs();
         renderDrivers();

@@ -16,9 +16,9 @@
       "Interventions",
       "Benchmark-only"
     ],
-    "input_note": "Enter the harmonized first-day ICU variables used by the deployed CatBoost model. Empty numeric fields are replaced with development-cohort defaults for local demonstration.",
-    "result_note": "The first card is the manuscript-aligned deployed model. The other two cards are bedside clinical comparators.",
-    "footer_note": "Database-adapted benchmark notice: GWTG-HF and ADHERE use harmonized first-day proxy variables rather than exact bedside admission values."
+    "input_note": "Enter the harmonized first-day ICU variables required by the deployed CatBoost model.",
+    "result_note": "The deployed model is shown alongside GWTG-HF and ADHERE bedside benchmarks.",
+    "footer_note": "GWTG-HF and ADHERE are database-adapted proxies rather than exact bedside admission scores."
   },
   "prediction_model": {
     "name": "CatBoost",
