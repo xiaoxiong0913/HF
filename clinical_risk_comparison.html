@@ -24,12 +24,12 @@
       color:var(--ink);
       background:var(--bg);
     }
-    .shell{max-width:1440px;margin:0 auto;padding:24px}
+    .shell{max-width:1380px;margin:0 auto;padding:24px}
     .hero,.workspace,.score-grid,.lower-grid{display:grid;gap:18px}
     .hero{grid-template-columns:minmax(0,1.15fr) minmax(0,0.85fr);align-items:stretch}
-    .workspace{grid-template-columns:minmax(0,1fr) minmax(0,1fr);align-items:start}
+    .workspace{grid-template-columns:minmax(0,1.03fr) minmax(0,0.97fr);align-items:start}
     .score-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
-    .lower-grid{grid-template-columns:minmax(0,0.92fr) minmax(0,1.08fr);margin-top:18px}
+    .lower-grid{grid-template-columns:repeat(2,minmax(0,1fr));margin-top:18px;align-items:stretch}
     .card,.panel{
       background:var(--surface);
       border:1px solid var(--line);
@@ -50,7 +50,7 @@
       color:#7d8b98;
       margin-bottom:10px
     }
-    h1{font-size:34px;line-height:1.05;margin:0 0 10px}
+    h1{font-size:32px;line-height:1.05;margin:0 0 10px}
     h2{font-size:19px;margin:0 0 8px}
     h3{font-size:15px;margin:0 0 10px}
     p,li{line-height:1.55}
@@ -119,7 +119,7 @@
     .primary{background:var(--accent);color:#fff;border-color:var(--accent)}
     .secondary{background:#fff;color:var(--ink)}
     .score-card{
-      min-height:212px;
+      min-height:196px;
       display:flex;
       flex-direction:column;
       justify-content:flex-start;
@@ -131,7 +131,7 @@
       padding:18px;
     }
     .risk{
-      font-size:40px;
+      font-size:38px;
       font-weight:800;
       letter-spacing:-.02em;
       margin-top:2px;
@@ -172,17 +172,41 @@
       border:1px solid var(--line);
       border-radius:16px;
       padding:18px;
+      height:100%;
     }
-    .driver-chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
-    .chip{
+    .driver-grid{
+      display:grid;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:10px;
+      margin-top:12px;
+    }
+    .driver-item{
+      display:flex;
+      gap:10px;
+      align-items:flex-start;
+      padding:12px;
+      background:#fff;
+      border:1px solid var(--line);
+      border-radius:14px;
+      min-height:68px;
+    }
+    .driver-rank{
+      width:24px;
+      height:24px;
+      border-radius:999px;
       display:inline-flex;
       align-items:center;
-      padding:7px 10px;
-      border-radius:999px;
-      background:#f3f7fa;
-      border:1px solid #d5e0e8;
-      color:var(--ink);
+      justify-content:center;
+      background:#eaf2f7;
+      color:var(--accent);
       font-size:12px;
+      font-weight:700;
+      flex:0 0 auto;
+    }
+    .driver-text{
+      color:var(--ink);
+      font-size:12.5px;
+      line-height:1.45;
     }
     .comparison-table{
       display:grid;
@@ -205,20 +229,20 @@
     .comparison-cell.header{
       background:var(--surface-soft);
       text-align:center;
-      font-size:13px;
+      font-size:12px;
       color:var(--muted);
       font-weight:700;
     }
     .comparison-cell.stub{
       background:var(--surface-soft);
-      font-size:12px;
+      font-size:11px;
       letter-spacing:.05em;
       text-transform:uppercase;
       color:var(--muted);
       font-weight:700;
     }
     .comparison-cell.value{
-      font-size:13px;
+      font-size:12px;
       font-weight:700;
       color:var(--ink);
     }
@@ -226,12 +250,12 @@
       display:block;
       margin-bottom:3px;
       color:var(--accent);
-      font-size:15px;
+      font-size:14px;
     }
     .comparison-cell.value span{
       color:var(--muted);
-      font-size:13px;
-      line-height:1.5;
+      font-size:11px;
+      line-height:1.4;
     }
     .footer{
       margin-top:14px;
@@ -343,7 +367,7 @@
       <div class="section-block">
         <h3>Top model drivers</h3>
         <p class="subtle">The deployed CatBoost model is kept aligned with the manuscript and uses the same 10 harmonized first-day ICU variables.</p>
-        <div class="driver-chips" id="driver-chips"></div>
+        <div class="driver-grid" id="driver-chips"></div>
       </div>
       <div class="section-block">
         <h3>Comparison with bedside clinical scores</h3>
@@ -478,11 +502,11 @@
     function renderDrivers(){
       const box = document.getElementById('driver-chips');
       box.innerHTML = '';
-      CONFIG.prediction_model.top_drivers.slice(0, 6).forEach((item) => {
-        const span = document.createElement('span');
-        span.className = 'chip';
-        span.textContent = item.label;
-        box.appendChild(span);
+      CONFIG.prediction_model.top_drivers.slice(0, 6).forEach((item, index) => {
+        const wrapper = document.createElement('div');
+        wrapper.className = 'driver-item';
+        wrapper.innerHTML = `<span class="driver-rank">${index + 1}</span><div class="driver-text">${item.label}</div>`;
+        box.appendChild(wrapper);
       });
     }
 
