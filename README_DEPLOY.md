@@ -26,7 +26,7 @@ This bundle is intended for public deployment so that reviewers and clinicians c
 2. Create a new Render Web Service from that repository.
 3. Use:
    - Build command: `pip install -r requirements.txt`
-   - Start command: `gunicorn -w 2 -k gthread -b 0.0.0.0:$PORT app:app`
+   - Start command: `gunicorn -w 1 --threads 4 --timeout 120 -b 0.0.0.0:$PORT app:app`
 4. After deployment, open the generated public URL.
 
 ## Local smoke test

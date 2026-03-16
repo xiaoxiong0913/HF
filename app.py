@@ -115,15 +115,24 @@ def _coerce_runtime_value(value: Any, feature_spec: dict[str, Any]) -> Any:
 
 with CARD_PATH.open("r", encoding="utf-8") as fh:
     PAYLOAD = json.load(fh)
-MODEL = joblib.load(APP_DIR / PAYLOAD["runtime"]["model_file"])
-PREPROCESSOR = joblib.load(APP_DIR / PAYLOAD["runtime"]["preprocessor_file"])
-TRANSFORMED_NAMES = PREPROCESSOR.get_feature_names_out().tolist()
 RAW_FEATURE_ORDER = list(PAYLOAD["prediction_model"]["raw_feature_order"])
 SELECTED_TRANSFORMED_FEATURES = list(PAYLOAD["prediction_model"]["selected_transformed_features"])
-TRANSFORMED_INDEX_MAP = {name: index for index, name in enumerate(TRANSFORMED_NAMES)}
 FEATURE_SPECS = {item["key"]: item for item in PAYLOAD["prediction_model"]["input_features"]}
+MODEL = None
+PREPROCESSOR = None
+TRANSFORMED_INDEX_MAP: dict[str, int] | None = None
 
 app = Flask(__name__)
+
+
+def _ensure_runtime_loaded() -> None:
+    global MODEL, PREPROCESSOR, TRANSFORMED_INDEX_MAP
+    if MODEL is not None and PREPROCESSOR is not None and TRANSFORMED_INDEX_MAP is not None:
+        return
+    PREPROCESSOR = joblib.load(APP_DIR / PAYLOAD["runtime"]["preprocessor_file"])
+    MODEL = joblib.load(APP_DIR / PAYLOAD["runtime"]["model_file"])
+    transformed_names = PREPROCESSOR.get_feature_names_out().tolist()
+    TRANSFORMED_INDEX_MAP = {name: index for index, name in enumerate(transformed_names)}
 
 
 def _prediction_frame(inputs: dict[str, Any]) -> pd.DataFrame:
@@ -132,6 +141,7 @@ def _prediction_frame(inputs: dict[str, Any]) -> pd.DataFrame:
 
 
 def _predict(inputs: dict[str, Any]) -> dict[str, Any]:
+    _ensure_runtime_loaded()
     frame = _prediction_frame(inputs)
     dense = _dense(PREPROCESSOR.transform(frame))
     selected_idx = [TRANSFORMED_INDEX_MAP[name] for name in SELECTED_TRANSFORMED_FEATURES]
@@ -205,7 +215,7 @@ def predict():
 
 @app.get("/healthz")
 def healthz():
-    return jsonify({"status": "ok", "model": PAYLOAD["prediction_model"]["name"]})
+    return jsonify({"status": "ok", "model": PAYLOAD["prediction_model"]["name"], "runtime_loaded": MODEL is not None})
 
 
 if __name__ == "__main__":
