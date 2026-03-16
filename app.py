@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import os
 from pathlib import Path
+from pathlib import PureWindowsPath
 from typing import Any
 
 import joblib
@@ -14,6 +15,11 @@ from flask import Flask, Response, jsonify, request
 APP_DIR = Path(__file__).resolve().parent
 CARD_PATH = APP_DIR / "clinical_web_model_card.json"
 HTML_PATH = APP_DIR / "clinical_risk_comparison.html"
+
+
+def _bundle_path(relative_path: str) -> Path:
+    """兼容 Windows 风格路径写法，确保 Linux 托管平台也能正确定位运行时文件。"""
+    return APP_DIR.joinpath(*PureWindowsPath(relative_path).parts)
 
 
 def _dense(matrix):
@@ -129,8 +135,8 @@ def _ensure_runtime_loaded() -> None:
     global MODEL, PREPROCESSOR, TRANSFORMED_INDEX_MAP
     if MODEL is not None and PREPROCESSOR is not None and TRANSFORMED_INDEX_MAP is not None:
         return
-    PREPROCESSOR = joblib.load(APP_DIR / PAYLOAD["runtime"]["preprocessor_file"])
-    MODEL = joblib.load(APP_DIR / PAYLOAD["runtime"]["model_file"])
+    PREPROCESSOR = joblib.load(_bundle_path(PAYLOAD["runtime"]["preprocessor_file"]))
+    MODEL = joblib.load(_bundle_path(PAYLOAD["runtime"]["model_file"]))
     transformed_names = PREPROCESSOR.get_feature_names_out().tolist()
     TRANSFORMED_INDEX_MAP = {name: index for index, name in enumerate(transformed_names)}
 
@@ -210,7 +216,11 @@ def config():
 @app.post("/api/predict")
 def predict():
     request_payload = request.get_json(silent=True) or {}
-    return jsonify(_predict(request_payload.get("inputs", {})))
+    try:
+        return jsonify(_predict(request_payload.get("inputs", {})))
+    except Exception as exc:
+        app.logger.exception("Prediction request failed.")
+        return jsonify({"error": "prediction_failed", "detail": str(exc)}), 500
 
 
 @app.get("/healthz")

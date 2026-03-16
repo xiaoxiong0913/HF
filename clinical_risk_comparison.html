@@ -6,14 +6,14 @@
   <title>HF-ICU Risk Translation Studio</title>
   <style>
     :root{
-      --bg:#f4f6f8;
+      --bg:#f7f8fa;
       --surface:#ffffff;
       --surface-soft:#fafbfd;
       --ink:#14283c;
       --muted:#5f7082;
-      --line:#d9e1e8;
-      --line-strong:#c4cfda;
-      --accent:#1d5977;
+      --line:#dbe2e9;
+      --line-strong:#c8d2dc;
+      --accent:#184c6a;
       --accent-soft:#edf4f8;
       --shadow:0 8px 24px rgba(20,40,60,.05);
     }
@@ -24,21 +24,21 @@
       color:var(--ink);
       background:var(--bg);
     }
-    .shell{max-width:1380px;margin:0 auto;padding:24px}
+    .shell{max-width:1320px;margin:0 auto;padding:20px}
     .hero,.workspace,.score-grid,.lower-grid{display:grid;gap:18px}
-    .hero{grid-template-columns:minmax(0,1.15fr) minmax(0,0.85fr);align-items:stretch}
-    .workspace{grid-template-columns:minmax(0,1.03fr) minmax(0,0.97fr);align-items:start}
-    .score-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
-    .lower-grid{grid-template-columns:repeat(2,minmax(0,1fr));margin-top:18px;align-items:stretch}
+    .hero{grid-template-columns:minmax(0,1fr) minmax(0,1fr);align-items:stretch}
+    .workspace{grid-template-columns:minmax(0,1fr) minmax(0,1fr);align-items:start}
+    .score-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+    .lower-grid{grid-template-columns:repeat(2,minmax(0,1fr));margin-top:16px;align-items:stretch}
     .card,.panel{
       background:var(--surface);
       border:1px solid var(--line);
-      border-radius:18px;
+      border-radius:16px;
       box-shadow:var(--shadow);
-      padding:22px;
+      padding:20px;
     }
     .hero-copy{
-      min-height:150px;
+      min-height:138px;
       display:flex;
       flex-direction:column;
       justify-content:center;
@@ -50,7 +50,7 @@
       color:#7d8b98;
       margin-bottom:10px
     }
-    h1{font-size:32px;line-height:1.05;margin:0 0 10px}
+    h1{font-size:30px;line-height:1.08;margin:0 0 10px}
     h2{font-size:19px;margin:0 0 8px}
     h3{font-size:15px;margin:0 0 10px}
     p,li{line-height:1.55}
@@ -60,8 +60,8 @@
       background:var(--surface-soft);
       border:1px solid var(--line);
       border-radius:14px;
-      padding:14px 16px;
-      min-height:78px;
+      padding:12px 14px;
+      min-height:72px;
       display:grid;
       align-content:start;
       gap:8px;
@@ -119,19 +119,19 @@
     .primary{background:var(--accent);color:#fff;border-color:var(--accent)}
     .secondary{background:#fff;color:var(--ink)}
     .score-card{
-      min-height:196px;
+      min-height:204px;
       display:flex;
       flex-direction:column;
       justify-content:flex-start;
-      gap:12px;
+      gap:10px;
       border-radius:16px;
       background:#ffffff;
       box-shadow:none;
       border:1px solid var(--line);
-      padding:18px;
+      padding:16px;
     }
     .risk{
-      font-size:38px;
+      font-size:36px;
       font-weight:800;
       letter-spacing:-.02em;
       margin-top:2px;
@@ -171,8 +171,10 @@
       background:var(--surface-soft);
       border:1px solid var(--line);
       border-radius:16px;
-      padding:18px;
+      padding:20px;
       height:100%;
+      display:flex;
+      flex-direction:column;
     }
     .driver-grid{
       display:grid;
